@@ -1,9 +1,15 @@
+COBJECTS = main.o
+ICOBJECTS = snake.o
+
 all: snake
-snake: *.o
+snake: $(COBJECTS) $(ICOBJECTS)
 	gcc -o snake $^
 
-*.o: $*.c *.h
-	gcc -c $*.c
+$(COBJECTS): $*.c
+$(ICOBJECTS): $*.mk
+%.o: *.h
+	gcc -c $<
 
-snake_*.c: snake.ic
-	../icp $^
+# Also makes the necessary C files
+%.mk: %.ic *.h
+	../icp $<
