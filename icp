@@ -10,7 +10,7 @@ stem="${filename%%.*}"
 makeobjs="${stem}objs ="
 makesrcs="${stem}srcs ="
 
-linenum=0
+linenum=1
 sectfilename="${stem}_main.c"
 
 
