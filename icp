@@ -34,10 +34,9 @@ while IFS= read -r line; do
                 echo "#line ${linenum} \"$filename\"" > "$sectfilename"
                 makeobjs+=" ${sectfilename%%.c}.o"
                 makesrcs+=" $sectfilename"
+        else
+                echo "${line}" >> "$sectfilename"
         fi
-
-        echo "${line}" >> "$sectfilename"
-
 done < "$filename"
 
 IFS=${IFS_BACK}
