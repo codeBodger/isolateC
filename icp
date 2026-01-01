@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+search='#isolate'
+
+filename="$1"
+
+stem="${filename%%.*}"
+
+
+makeobjs="${stem}objs ="
+makesrcs="${stem}srcs ="
+
+linenum=0
+sectfilename="${stem}_main.c"
+
+
+if [[ `head -n 1 "$filename"` != ${search}* ]]; then
+        echo "#line $linenum $filename" > "$sectfilename"
+        makeobjs+=" ${sectfilename%%.c}.o"
+        makesrcs+=" $sectfilename"
+fi
+
+
+IFS_BACK=${IFS}
+
+while IFS= read -r line; do
+        ((linenum++))
+        if [[ "$line" == ${search}* ]]; then
+                sectname="${line/#$search/}"
+                sectname="${sectname#"${sectname%%[![:space:]]*}"}"
+                sectname="${sectname%"${sectname##*[![:space:]]}"}"
+                sectfilename="${stem}_${sectname}.c"
+
+                echo "#line ${linenum} $filename" > "$sectfilename"
+                makeobjs+=" ${sectfilename%%.c}.o"
+                makesrcs+=" $sectfilename"
+        fi
+
+        echo "${line}" >> "$sectfilename"
+
+done < "$filename"
+
+IFS=${IFS_BACK}
+
+makename="${stem}.mk"
+
+echo "ICOBJECTS += ${stem}.o" > "$makename"
+echo "ICCLEANS += ${stem}clean" >> "$makename"
+echo "$makeobjs" >> "$makename"
+echo "$makesrcs" >> "$makename"
+echo "${stem}.o: \$(${stem}objs)" >> "$makename"
+echo -e "\tld -o \$@ \$^" >> "$makename"
+echo "${stem}clean:" >> "$makename"
+echo -e "\t-rm -f \$(${stem}objs) \$(${stem}srcs)" >> "$makename"
