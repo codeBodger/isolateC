@@ -35,8 +35,8 @@ uint8_t makeTail() {
 #include <stdio.h>
 
 void drawSnake(Snake s) {
-        if (s.t & 0x80) printf("%c", s.h);
-        for (int i = 0; i < (s.t & ~0x80); i++) printf("=");
-        if (~s.t & 0x80) printf("%c", s.h);
+        if (s.tail & 0x80) printf("%c", s.head);
+        for (int i = 0; i < (s.tail & ~0x80); i++) printf("=");
+        if (~s.tail & 0x80) printf("%c", s.head);
         printf("\n");
 }
