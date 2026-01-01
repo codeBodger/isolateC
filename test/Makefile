@@ -1,15 +1,21 @@
+TARGET = snake
 COBJECTS = main.o
-ICOBJECTS = snake.o
+ICOBJECTS =
+ICCLEANS =
+ICMAKES = snake.mk
 
-all: snake
-snake: $(COBJECTS) $(ICOBJECTS)
-	gcc -o snake $^
+include $(ICMAKES)
 
-$(COBJECTS): $*.c
-$(ICOBJECTS): $*.mk
-%.o: *.h
+all: $(TARGET)
+$(TARGET): $(COBJECTS) $(ICOBJECTS)
+	gcc -o $@ $^
+
+$(COBJECTS): $*.c *.h
 	gcc -c $<
 
 # Also makes the necessary C files
 %.mk: %.ic *.h
 	../icp $<
+
+clean: $(ICCLEANS)
+	-rm -f $(TARGET) $(COBJECTS) $(ICOBJECTS) $(ICMAKES)
