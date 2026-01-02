@@ -20,18 +20,7 @@ filename and section name, e.g. a file named `snake.ic` with sections `head`,
 `tail`, and `draw` (with non-empty first section) will produce the files
 `snake_main.c`, `snake_head.c`, `snake_tail.c`, and `snake_draw.c`.
 
-The Isolate C Preprocessor is designed to be used with GNU `make`.  Below is an
-example `Makefile`.
-```makefile
-all: snake
-snake: *.o
-        gcc -o snake $^
-
-*.o: $*.c *.h
-        gcc -c $*.c
-
-snake_*.c: snake.ic
-        icp $^
-```
+The Isolate C Preprocessor is designed to be used with GNU `make`.  Check out the
+example `Makefile` [here](https://github.com/codeBodger/isolateC/blob/main/test/Makefile).
 
 ## Implementation
