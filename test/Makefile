@@ -4,14 +4,19 @@ ICOBJECTS =
 ICCLEANS =
 ICMAKES = snake.mk
 
-include $(ICMAKES)
+.SECONDEXPANSION:
 
 all: $(TARGET)
+
+
+include $(ICMAKES)
+
+
 $(TARGET): $(COBJECTS) $(ICOBJECTS)
 	gcc -o $@ $^
 
-$(COBJECTS): $*.c *.h
-	gcc -c $<
+$(COBJECTS): $($*.c) *.h
+	gcc -c $*.c
 
 # Also makes the necessary C files
 %.mk: %.ic *.h
@@ -19,3 +24,5 @@ $(COBJECTS): $*.c *.h
 
 clean: $(ICCLEANS)
 	-rm -f $(TARGET) $(COBJECTS) $(ICOBJECTS) $(ICMAKES)
+
+
