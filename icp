@@ -14,18 +14,35 @@ linenum=1
 sectfilename="${stem}_main.c"
 
 
+fix_sfname() {
+        local oldname="$1"
+        if [[ "$oldname" != "${stem}_.c" ]]; then
+                return 0
+        fi
+        local oldonam="${oldname%%.c}.o"
+        local shaval=`sha256sum < "$oldname" | cut -d' ' -f1`
+        local newname="${stem}_${shaval}.c"
+        local newonam="${newname%%.c}.o"
+        echo "$makeobjs"
+        makeobjs="${makeobjs%%$oldonam}$newonam"
+        echo "$makeobjs"
+        makesrcs="${makesrcs%%$oldname}$newname"
+        mv "$oldname" "$newname"
+}
+
+
 if [[ `head -n 1 "$filename"` != ${search}* ]]; then
         echo "#line $linenum \"$filename\"" > "$sectfilename"
         makeobjs+=" ${sectfilename%%.c}.o"
         makesrcs+=" $sectfilename"
 fi
 
-
 IFS_BACK=${IFS}
 
 while IFS= read -r line; do
         ((linenum++))
         if [[ "$line" == ${search}* ]]; then
+                fix_sfname "$sectfilename"
                 sectname="${line/#$search/}"
                 sectname="${sectname#"${sectname%%[![:space:]]*}"}"
                 sectname="${sectname%"${sectname##*[![:space:]]}"}"

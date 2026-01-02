@@ -12,7 +12,7 @@ Snake makeSnake() {
 }
 
 
-#isolate head
+#isolate
 #include "snake.h"
 
 char makeHead() {
