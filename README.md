@@ -29,3 +29,8 @@ example `Makefile` [here](https://github.com/codeBodger/isolateC/blob/main/test/
 IDK: check the comments...
 
 Sorry
+
+## TODO
+- [ ] sha256 defaults
+- [ ] `import` and `export`, as I'd previously thought about (file-local vs not?)
+- [ ] autogeneration of headers, possible inherently connected to `im`/`ex``port`
