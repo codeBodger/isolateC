@@ -44,6 +44,7 @@ while IFS= read -r line; do
         if [[ "$line" == ${search}* ]]; then
                 fix_sfname "$sectfilename"
                 sectname="${line/#$search/}"
+                sectname=`echo "$sectname" | awk '$1=$1' | cut -d' ' -f1`
                 sectname="${sectname#"${sectname%%[![:space:]]*}"}"
                 sectname="${sectname%"${sectname##*[![:space:]]}"}"
                 sectfilename="${stem}_${sectname}.c"
