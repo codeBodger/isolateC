@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 
-search='#isolate'
+search='#isolate' # The name of the pseudo-preprocessor directive analysed here
 
-filename="$1"
+filename="$1" # The first argument is the file to process
 
-stem="${filename%%.*}"
-
-
-makeobjs="${stem}objs ="
-makesrcs="${stem}srcs ="
-
-linenum=1
-sectfilename="${stem}_main.c"
+stem="${filename%%.*}" # The stem of the file being processed
 
 
-fix_sfname() {
+makeobjs="${stem}objs =" # The make variable with the names of objects to make
+makesrcs="${stem}srcs =" # The make variable with the names of C files created
+
+linenum=1 # The first line is 1
+sectfilename="${stem}_main.c" # The first section is called `main`
+
+
+fix_sfname() { # If a section was nameless, name its files and fix make* vars
         local oldname="$1"
         if [[ "$oldname" != "${stem}_.c" ]]; then
                 return 0
@@ -23,51 +23,60 @@ fix_sfname() {
         local shaval=`sha256sum < "$oldname" | cut -d' ' -f1`
         local newname="${stem}_${shaval}.c"
         local newonam="${newname%%.c}.o"
-        echo "$makeobjs"
         makeobjs="${makeobjs%%$oldonam}$newonam"
-        echo "$makeobjs"
         makesrcs="${makesrcs%%$oldname}$newname"
         mv "$oldname" "$newname"
 }
 
 
+# If there's a main section, ensure that it's set up
 if [[ `head -n 1 "$filename"` != ${search}* ]]; then
+        # See the loop below for some more details
         echo "#line $linenum \"$filename\"" > "$sectfilename"
         makeobjs+=" ${sectfilename%%.c}.o"
         makesrcs+=" $sectfilename"
 fi
 
-IFS_BACK=${IFS}
+IFS_BACK=${IFS} # Save the old IFS
 
-while IFS= read -r line; do
-        ((linenum++))
-        if [[ "$line" == ${search}* ]]; then
-                fix_sfname "$sectfilename"
+while IFS= read -r line; do # Loop through the lines in the file
+        ((linenum++)) # Next line number
+        if [[ "$line" == ${search}* ]]; then # New section start?
+                fix_sfname "$sectfilename" # Fix the old name
+                # Get the new section name and set up it's file names
                 sectname="${line/#$search/}"
                 sectname=`echo "$sectname" | awk '$1=$1' | cut -d' ' -f1`
                 sectname="${sectname#"${sectname%%[![:space:]]*}"}"
                 sectname="${sectname%"${sectname##*[![:space:]]}"}"
                 sectfilename="${stem}_${sectname}.c"
 
+                # Ensure it points to the right line in filename
                 echo "#line ${linenum} \"$filename\"" > "$sectfilename"
+
                 makeobjs+=" ${sectfilename%%.c}.o"
                 makesrcs+=" $sectfilename"
-        else
+        else # Don't keep the section start
+                # Put the line into the file
                 echo "${line}" >> "$sectfilename"
         fi
-done < "$filename"
+done < "$filename" # The file being looped through
 
-IFS=${IFS_BACK}
+IFS=${IFS_BACK} # Replace the old IFS
 
-makename="${stem}.mk"
+makename="${stem}.mk" # The name of the makefile to handle making filename
 
+# Append necessary names to make variables that should be defined in Makefile
 echo "ICOBJECTS += ${stem}.o" > "$makename"
 echo "ICCLEANS += ${stem}clean" >> "$makename"
+# Add the make variables needed for this makefile
 echo "$makeobjs" >> "$makename"
 echo "$makesrcs" >> "$makename"
+# The rule to combine the section object files into one
 echo "${stem}.o: \$(${stem}objs)" >> "$makename"
 echo -e "\tld -r -o \$@ \$^" >> "$makename"
+# The rule to make the section object files from the section source files
 echo "\$(${stem}objs): $makename" >> "$makename"
 echo -e "\t\$(CC) -c \$(CFLAGS) \$*.c" >> "$makename"
+# The rule to clean the section object and source files
 echo "${stem}clean:" >> "$makename"
 echo -e "\t-rm -f \$(${stem}objs) \$(${stem}srcs)" >> "$makename"
