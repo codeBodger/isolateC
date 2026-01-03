@@ -1,10 +1,13 @@
+// The main section
 #include "snake.h"
 
 #include <time.h>
 
+// Makes and returns the snake
 Snake makeSnake() {
-        srand(time(NULL));
+        srand(time(NULL)); // Init the random seed
 
+        // Make the head and tail, put them together, and return the Snake!
         char h = makeHead();
         uint8_t t = makeTail();
         Snake s = {h, t};
@@ -13,30 +16,41 @@ Snake makeSnake() {
 
 
 #isolate head or other stuff
+// The head section (this is under the directive so it's in the right file)
+// Note that additional words after the name of the section are ignored
+
+// Includes must me made in each section they're used
 #include "snake.h"
 
 char makeHead() {
+        // The head is a random character between 'A' and 'Z'
         return (char)(rand() % 26 + 'A');
 }
 
 
 #isolate tail
+// The tail section
+
 #include "snake.h"
 
 uint8_t makeTail() {
-        int r = rand();
-        return (uint8_t)(r & 0xBF) + 1;
+        // The most significant bit indicates the direction that the snake goes
+        // The less significant seven bits are the length of it (1:64, inclusive)
+        return (uint8_t)(rand() & 0xBF) + 1;
 }
 
 
 #isolate draw
+// The draw section
+
 #include "snake.h"
 
+// Only included here, since it's the only place we're drawing
 #include <stdio.h>
 
 void drawSnake(Snake s) {
-        if (s.tail & 0x80) printf("%c", s.head);
-        for (int i = 0; i < (s.tail & ~0x80); i++) printf("=");
-        if (~s.tail & 0x80) printf("%c", s.head);
+        if (s.tail & 0x80) printf("%c", s.head); // 0b1XXXXXXX means going left
+        for (int i = 0; i < (s.tail & ~0x80); i++) printf("="); // Print the tail
+        if (~s.tail & 0x80) printf("%c", s.head); // 0b0XXXXXXX means going right
         printf("\n");
 }
