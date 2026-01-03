@@ -34,7 +34,7 @@ Sorry
 - [x] sha256 defaults
 - [ ] `import` and `export`, as I'd previously thought about (file-local vs not?)
 - [ ] autogeneration of headers, possible inherently connected to `im`/`ex``port`
-- [ ] add comments to various files
+- [x] add comments to various files
 - [x] change how `#isolate` works to take strings, not any text
         - doesn't take strings: instead see whitespace fix, below
 - [x] fix whitespace in makefile generation
